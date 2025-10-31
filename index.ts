@@ -43,6 +43,10 @@ async function fetchRSSFeeds() {
 
   const allItems: Array<{ feedName: string; item: RSSItem }> = [];
 
+  // Calculate 24 hours ago
+  const now = new Date();
+  const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
   // Fetch all feeds
   for (const feedConfig of config.feeds) {
     try {
@@ -50,10 +54,19 @@ async function fetchRSSFeeds() {
       const feed = await parser.parseURL(feedConfig.url);
 
       for (const item of feed.items) {
-        if (item.link && !existingLinks.has(item.link)) {
+        // Parse publication date
+        const pubDate = item.pubDate ? new Date(item.pubDate) : null;
+
+        // Check if item is new, not duplicate, and published within last 24 hours
+        if (item.link &&
+            !existingLinks.has(item.link) &&
+            pubDate &&
+            pubDate >= oneDayAgo) {
           allItems.push({ feedName: feedConfig.name, item });
         }
       }
+
+      console.log(`  Found ${allItems.filter(i => i.feedName === feedConfig.name).length} new items from last 24 hours`);
     } catch (error) {
       console.error(`Error fetching feed ${feedConfig.name}:`, error);
     }
