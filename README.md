@@ -44,11 +44,26 @@ bun index.ts
 
 ## GitHub Actionsでの自動実行
 
-このリポジトリをGitHubにプッシュすると、毎日00:00 UTC（日本時間9:00 AM）に自動的にRSSフィードを取得し、CSVを更新します。
+このリポジトリをGitHubにプッシュすると、毎日00:00 UTC（日本時間9:00 AM）に自動的にRSSフィードを取得し、CSVをArtifactとして保存します。
 
 ### 手動実行
 
 GitHub Actionsの画面から「Actions」→「RSS to CSV Daily Update」→「Run workflow」で手動実行も可能です。
+
+### CSVファイルのダウンロード
+
+生成されたCSVファイルは、GitHub ActionsのArtifactとして保存されます（90日間保持）：
+
+1. リポジトリの「Actions」タブを開く
+2. 最新のワークフロー実行を選択
+3. 「Artifacts」セクションから`rss-feed-data`をダウンロード
+
+または、GitHub CLIを使用してダウンロード：
+
+```bash
+gh run list --workflow=rss-to-csv.yml --limit 1
+gh run download <RUN_ID> -n rss-feed-data
+```
 
 ## 出力形式
 
